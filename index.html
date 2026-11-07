@@ -1,193 +1,1106 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مطعم أسماك العمدة</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: 'Cairo', sans-serif; color: #333; background: #f0f8ff; }
-    
-    header {
-      background: url('fish-background.jpg') no-repeat center center;
-      background-size: cover;
-      color: white;
-      text-align: center;
-      padding: 80px 20px;
-      position: relative;
-    }
-    header::before {
-      content: "";
-      position: absolute;
-      top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.4);
-      z-index: 0;
-    }
-    header img { max-width: 200px; margin-bottom: 20px; position: relative; z-index:1; }
-    header h1 { font-size:48px; font-weight:700; margin-bottom:10px; position: relative; z-index:1; }
-    header p { font-size:20px; position: relative; z-index:1; }
-    
-    nav { background: #333; text-align: center; }
-    nav a { color: white; padding: 15px 20px; display:inline-block; text-decoration:none; font-weight:bold; }
-    nav a:hover { background:#555; transition:0.3s; }
-    
-    section { padding:40px 20px; max-width:1000px; margin:auto; }
-    h2 { color:#1e90ff; font-size:36px; margin-bottom:20px; text-align:center; }
-    
-    .menu-section { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
-    .menu-card { background:#fff; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.1); padding:20px; width:250px; text-align:center; }
-    .menu-card h3 { color:#ff8c00; margin-bottom:15px; }
-    .menu-card img { width:100%; border-radius:8px; margin-bottom:10px; }
-    .menu-card div { margin-bottom:10px; font-size:18px; }
-    
-    #contact p, #contact a { font-size:18px; text-align:center; margin-bottom:10px; color:#333; text-decoration:none; }
-    #contact a:hover { color:#1e90ff; }
-    
-    footer { background:#333; color:white; text-align:center; padding:15px; font-size:16px; }
-    
-    @media(max-width:768px){ header h1{font-size:36px;} h2{font-size:28px;} .menu-card{width:90%;} }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أسماك العمدة | البحر في الإسكندرية والعمدة في السعودية</title>
+<meta name="description" content="أسماك العمدة - أجود الأسماك والمأكولات البحرية في السعودية. اطلب الآن واستمتع بأشهى الأطباق البحرية.">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --navy:#071827;
+  --navy2:#0d263b;
+  --navy3:#153a52;
+  --gold:#d6b15c;
+  --gold2:#f0d58e;
+  --turquoise:#20b8b0;
+  --white:#fff;
+  --muted:#aabac6;
+  --bg:#f4f7f8;
+  --border:#e4e9ed;
+  --shadow:0 12px 35px rgba(7,24,39,.09);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  color:#172b3a;
+}
+button,input,textarea { font-family:inherit; }
+button { cursor:pointer; }
+a { text-decoration:none; color:inherit; }
+
+.topbar {
+  background:#04121e;
+  color:#dce7ed;
+  padding:9px 5%;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+  font-size:12px;
+}
+.topbar span { display:flex; align-items:center; gap:7px; }
+
+.navbar {
+  background:var(--navy);
+  color:white;
+  min-height:82px;
+  padding:12px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 5px 20px #0002;
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.brand img {
+  width:60px;
+  height:60px;
+  object-fit:contain;
+  border-radius:50%;
+  background:white;
+}
+.brand-name {
+  font-size:22px;
+  font-weight:900;
+  color:var(--gold2);
+}
+.brand small {
+  display:block;
+  font-size:11px;
+  color:#d4e1e8;
+  font-weight:400;
+}
+.nav-links {
+  display:flex;
+  align-items:center;
+  gap:24px;
+  font-size:14px;
+}
+.nav-links a:hover { color:var(--gold2); }
+.cart-nav {
+  border:1px solid var(--gold);
+  background:var(--gold);
+  color:var(--navy);
+  border-radius:30px;
+  padding:10px 18px;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.cart-count {
+  background:var(--navy);
+  color:white;
+  border-radius:50%;
+  min-width:22px;
+  height:22px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+}
+
+.hero {
+  min-height:490px;
+  background:
+    linear-gradient(90deg,rgba(3,18,30,.91),rgba(3,18,30,.55)),
+    url('https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=1800&q=85')
+    center/cover;
+  display:flex;
+  align-items:center;
+  padding:65px 8%;
+  color:white;
+}
+.hero-content { max-width:690px; }
+.hero-label {
+  color:var(--gold2);
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+.hero h1 {
+  font-size:clamp(35px,5vw,62px);
+  line-height:1.4;
+  margin:14px 0;
+  font-weight:900;
+}
+.hero h1 span { color:var(--gold2); }
+.hero p {
+  font-size:18px;
+  color:#e0e9ef;
+  line-height:2;
+  margin-bottom:25px;
+}
+.main-btn {
+  background:var(--gold);
+  color:var(--navy);
+  border:0;
+  border-radius:8px;
+  padding:13px 27px;
+  font-size:15px;
+  font-weight:900;
+  display:inline-block;
+  transition:.2s;
+}
+.main-btn:hover { background:var(--gold2); transform:translateY(-2px); }
+
+.features {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+  max-width:1150px;
+  margin:-35px auto 30px;
+  padding:0 20px;
+  position:relative;
+}
+.feature {
+  background:white;
+  border-radius:13px;
+  padding:21px 15px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.feature strong { display:block; color:var(--navy); margin-bottom:5px; }
+.feature span { font-size:12px; color:#788994; }
+
+.section {
+  max-width:1250px;
+  margin:auto;
+  padding:65px 20px;
+}
+.section-heading { text-align:center; margin-bottom:32px; }
+.section-heading .eyebrow {
+  color:#b08a35;
+  font-size:13px;
+  font-weight:800;
+}
+.section-heading h2 {
+  font-size:32px;
+  color:var(--navy);
+  margin:5px 0;
+  font-weight:900;
+}
+.section-heading p { color:#778793; font-size:14px; }
+
+.menu-tools {
+  display:flex;
+  gap:12px;
+  margin-bottom:22px;
+  flex-wrap:wrap;
+}
+.search-box {
+  flex:1;
+  min-width:220px;
+  padding:13px 17px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:white;
+  outline:none;
+  font-size:14px;
+}
+.search-box:focus { border-color:var(--turquoise); }
+.category-list {
+  display:flex;
+  gap:9px;
+  overflow-x:auto;
+  padding:5px 0 17px;
+  margin-bottom:12px;
+}
+.category-btn {
+  white-space:nowrap;
+  border:1px solid #dce4e9;
+  background:white;
+  color:var(--navy);
+  border-radius:30px;
+  padding:9px 18px;
+  font-size:13px;
+  font-weight:700;
+}
+.category-btn.active,
+.category-btn:hover {
+  background:var(--navy);
+  color:var(--gold2);
+  border-color:var(--navy);
+}
+.menu-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:20px;
+}
+.menu-card {
+  background:white;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 5px 22px rgba(7,24,39,.06);
+  transition:.25s;
+  border:1px solid #edf0f2;
+}
+.menu-card:hover {
+  transform:translateY(-5px);
+  box-shadow:var(--shadow);
+}
+.menu-card img {
+  width:100%;
+  height:190px;
+  object-fit:cover;
+  background:#e9eff2;
+}
+.menu-card-content { padding:15px; }
+.menu-card h3 {
+  color:var(--navy);
+  font-size:17px;
+  margin-bottom:7px;
+}
+.menu-card .category-name {
+  font-size:11px;
+  color:#84949e;
+}
+.card-bottom {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:14px;
+}
+.price {
+  color:#a77d23;
+  font-size:16px;
+  font-weight:900;
+}
+.add-btn {
+  background:var(--navy);
+  color:white;
+  border:0;
+  border-radius:7px;
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:700;
+}
+.add-btn:hover { background:var(--turquoise); }
+.empty-state {
+  grid-column:1/-1;
+  text-align:center;
+  padding:40px;
+  color:#788994;
+}
+.loading {
+  grid-column:1/-1;
+  text-align:center;
+  padding:45px;
+  color:var(--navy);
+}
+.error-box {
+  background:#fff1f0;
+  color:#a52d25;
+  border-radius:10px;
+  padding:20px;
+  text-align:center;
+  grid-column:1/-1;
+}
+.about {
+  background:var(--navy);
+  color:white;
+  padding:65px 20px;
+  text-align:center;
+}
+.about h2 { color:var(--gold2); font-size:30px; margin-bottom:15px; }
+.about p { max-width:750px; margin:auto; line-height:2.2; color:#d4e0e7; }
+
+.contact {
+  background:white;
+  border-radius:14px;
+  padding:28px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.contact p { margin:9px 0; color:#526674; }
+
+footer {
+  background:#04121e;
+  color:#c7d4dc;
+  padding:25px 15px;
+  text-align:center;
+  font-size:13px;
+}
+footer strong { color:var(--gold2); }
+
+.cart-overlay {
+  position:fixed;
+  inset:0;
+  background:#0008;
+  z-index:100;
+  display:none;
+}
+.cart-overlay.show { display:block; }
+.cart-panel {
+  position:absolute;
+  top:0;
+  left:0;
+  width:min(450px,100%);
+  height:100%;
+  background:white;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 0 30px #0003;
+}
+.cart-header {
+  background:var(--navy);
+  color:white;
+  padding:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.close-btn {
+  border:0;
+  background:transparent;
+  color:white;
+  font-size:25px;
+}
+.cart-items {
+  padding:15px;
+  overflow-y:auto;
+  flex:1;
+}
+.cart-row {
+  border-bottom:1px solid var(--border);
+  padding:13px 0;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+.cart-row h4 { color:var(--navy); font-size:14px; }
+.cart-row small { color:#8a989f; }
+.quantity-controls {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:8px;
+}
+.quantity-controls button {
+  width:26px;
+  height:26px;
+  border:0;
+  background:#eaf0f3;
+  border-radius:5px;
+  font-weight:900;
+}
+.remove-btn { color:#b23b32; border:0; background:none; font-size:12px; }
+.cart-footer {
+  padding:17px;
+  border-top:1px solid var(--border);
+}
+.total-line {
+  display:flex;
+  justify-content:space-between;
+  font-size:19px;
+  font-weight:900;
+  margin-bottom:15px;
+  color:var(--navy);
+}
+.checkout-btn {
+  width:100%;
+  padding:14px;
+  background:var(--gold);
+  border:0;
+  border-radius:8px;
+  color:var(--navy);
+  font-weight:900;
+  font-size:15px;
+}
+.checkout-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+.checkout-modal {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:120;
+  background:#0009;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+.checkout-modal.show { display:flex; }
+.checkout-box {
+  width:min(470px,100%);
+  max-height:90vh;
+  overflow-y:auto;
+  background:white;
+  border-radius:15px;
+  padding:23px;
+}
+.checkout-box h2 { color:var(--navy); margin-bottom:15px; }
+.checkout-box label {
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin:12px 0 5px;
+}
+.checkout-box input,
+.checkout-box textarea {
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:12px;
+  outline:none;
+  font-size:14px;
+}
+.checkout-box textarea { resize:vertical; min-height:80px; }
+.checkout-actions { display:flex; gap:10px; margin-top:18px; }
+.checkout-actions button { flex:1; }
+.cancel-btn {
+  border:1px solid var(--border);
+  background:white;
+  border-radius:8px;
+  padding:12px;
+}
+.success-message {
+  background:#e8f8ef;
+  color:#16713d;
+  padding:13px;
+  border-radius:8px;
+  margin-top:12px;
+  display:none;
+  line-height:1.8;
+  font-size:13px;
+}
+.toast {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--navy);
+  color:white;
+  padding:13px 20px;
+  border-radius:8px;
+  z-index:200;
+  display:none;
+  box-shadow:var(--shadow);
+}
+
+@media(max-width:950px) {
+  .menu-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:650px) {
+  .navbar { padding:10px 4%; }
+  .nav-links { display:none; }
+  .brand-name { font-size:18px; }
+  .brand img { width:48px; height:48px; }
+  .hero { min-height:420px; padding:50px 6%; }
+  .hero p { font-size:15px; }
+  .features { grid-template-columns:1fr; margin-top:18px; }
+  .section { padding:45px 13px; }
+  .section-heading h2 { font-size:26px; }
+  .menu-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+  .menu-card img { height:135px; }
+  .menu-card-content { padding:10px; }
+  .menu-card h3 { font-size:14px; }
+  .price { font-size:13px; }
+  .add-btn { padding:8px; font-size:11px; }
+  .topbar { justify-content:center; }
+}
+@media(max-width:370px) {
+  .menu-grid { grid-template-columns:1fr; }
+}
+</style>
 </head>
+
 <body>
 
-  <header>
-    <img src="logo.png" alt="لوجو أسماك العمدة">
-    <h1>مطعم أسماك العمدة</h1>
-    <p>البحر في الإسكندرية والعمدة في السعودية</p>
-  </header>
+<div class="topbar">
+  <span>📍 مكة المكرمة - العزيزية الجنوبية - شارع عبدالله الخياط</span>
+  <span>🐟 طازج من البحر إلى مائدتك</span>
+</div>
 
-  <nav>
-    <a href="#about">عن المطعم</a>
-    <a href="#menu">القائمة</a>
-    <a href="#contact">تواصل معنا</a>
-  </nav>
-
-  <section id="about">
-    <h2>عن المطعم</h2>
-    <p style="text-align:center; font-size:20px; max-width:800px; margin:auto;">
-      أسماك العمدة يقدم أفضل الأسماك الطازجة بنكهات متعددة: مشوي، مقلي، سنجاري، زيت وليمون وصواني. مع تجربة طعام احترافية ومريحة.
-    </p>
-  </section>
-
-  <section id="menu">
-    <h2>القائمة</h2>
-    <div class="menu-section">
-      <!-- قسم الأسماك -->
-      <div class="menu-card">
-        <h3>دنيس</h3>
-        <img src="https://www.thaqfny.com/wp-content/uploads/2020/06/طريقة-عمل-سمك-دنيس-مشوي-بدبس-الرمان.jpg" alt="دنيس مشوي">
-        <div>٧٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>جمبري</h3>
-        <img src="https://www.youm7.com/story/2016/11/11/بالصور-والخطوات-طريقة-عمل-الجمبرى-المقلى-فى-المنزل-استغلى-الإجازة/2962886" alt="جمبري مقلي">
-        <div>٨٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>فيليه</h3>
-        <img src="https://yummy.layalina.com/طريقة-سمك-فيليه-458281.html" alt="سمك فيليه">
-        <div>٩٠ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>استاكوزا</h3>
-        <img src="https://www.foodtodayeg.com/Section-1/وصفات/الاستاكوزا-اعرف-طريقة-عملها-بـ-3-وصفات-لازم-تجربها-بالبشاميل-21533" alt="استاكوزا">
-        <div>١١٠ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>كابوريا</h3>
-        <img src="https://kitchen.sayidaty.net/node/26711/كابوريا-مشوية-بالفرن-بالتتبيلة/وصفات-طبخ/وصفات" alt="كابوريا مشوية">
-        <div>٥٧ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>بلطي</h3>
-        <img src="https://www.marefa.org/بلطي_(سمك)" alt="بلطي">
-        <div>٤٣ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>بوري</h3>
-        <img src="https://kitchen.sayidaty.net/node/25751/طريقة-عمل-سمك-بوري-مشوي-على-الفحم-بالتتبيلة/أطباق-الأسماك-وثمار-البحر" alt="بوري مشوي">
-        <div>٥٤ ريال</div>
-      </div>
-
-      <!-- قسم الأرز والشوربة -->
-      <div class="menu-card">
-        <h3>أرز صيادية</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2019/12/sayadiya.jpg" alt="أرز صيادية">
-        <div>٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>أرز حبة وحبة</h3>
-        <img src="https://www.cookingmama.com.eg/images/arbha.jpg" alt="أرز حبة وحبة">
-        <div>٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>أرز خلطة صغير</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/rice-mix-small.jpg" alt="أرز خلطة صغير">
-        <div>١٧ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>أرز خلطة كبير</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/rice-mix-large.jpg" alt="أرز خلطة كبير">
-        <div>٢٣ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>شوربة سي فوود</h3>
-        <img src="https://www.foodtodayeg.com/Section-1/وصفات/شوربة-سي-فوود.jpg" alt="شوربة سي فوود">
-        <div>٢٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>شوربة حمراء</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/red-soup.jpg" alt="شوربة حمراء">
-        <div>١٧ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>ملوخية جمبري</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/molokhia-shrimp.jpg" alt="ملوخية جمبري">
-        <div>١٠ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>مكرونة جمبري</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/shrimp-pasta.jpg" alt="مكرونة جمبري">
-        <div>٢٥ ريال</div>
-      </div>
-
-      <!-- قسم السلطات -->
-      <div class="menu-card">
-        <h3>سلطة خضراء</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/green-salad.jpg" alt="سلطة خضراء">
-        <div>٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>سلطة بنجر</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/beetroot-salad.jpg" alt="سلطة بنجر">
-        <div>٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>سلطة بابا غنوج</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/baba-ghanoush.jpg" alt="سلطة بابا غنوج">
-        <div>٥ ريال</div>
-      </div>
-      <div class="menu-card">
-        <h3>سلطة بطاطس متبلة</h3>
-        <img src="https://www.egymenu.com/wp-content/uploads/2020/06/potato-salad.jpg" alt="سلطة بطاطس متبلة">
-        <div>٥ ريال</div>
-      </div>
-
+<nav class="navbar">
+  <a href="#" class="brand">
+    <img src="logo.png" alt="شعار أسماك العمدة">
+    <div>
+      <div class="brand-name">أسماك العمدة</div>
+      <small>البحر في الإسكندرية والعمدة في السعودية</small>
     </div>
-  </section>
+  </a>
 
-  <section id="contact">
+  <div class="nav-links">
+    <a href="#home">الرئيسية</a>
+    <a href="#menu">المنيو</a>
+    <a href="#about">عن المطعم</a>
+    <a href="#contact">تواصل معنا</a>
+  </div>
+
+  <button class="cart-nav" onclick="openCart()">
+    🛒 السلة <span class="cart-count" id="cartCount">0</span>
+  </button>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-label">✦ مذاق البحر الأصيل ✦</div>
+    <h1>البحر في الإسكندرية<br><span>والعمدة في السعودية</span></h1>
+    <p>
+      أجمل مذاق للمأكولات البحرية، وأسماك مختارة بعناية،
+      وتجربة تستحق إنك تعيشها.
+    </p>
+    <a href="#menu" class="main-btn">اكتشف المنيو واطلب الآن</a>
+  </div>
+</header>
+
+<div class="features">
+  <div class="feature">
+    <strong>🐟 اختيارات بحرية متنوعة</strong>
+    <span>مجموعة متنوعة من الأسماك والمأكولات البحرية</span>
+  </div>
+  <div class="feature">
+    <strong>🍤 مذاق يستحق التجربة</strong>
+    <span>أطباق بحرية بنكهات مميزة</span>
+  </div>
+  <div class="feature">
+    <strong>🛵 اطلب بسهولة</strong>
+    <span>أرسل طلبك مباشرة إلى المطعم</span>
+  </div>
+</div>
+
+<section class="section" id="menu">
+  <div class="section-heading">
+    <div class="eyebrow">قائمة أسماك العمدة</div>
+    <h2>اكتشف عالم المأكولات البحرية</h2>
+    <p>اختار أطباقك المفضلة وأضفها إلى سلتك</p>
+  </div>
+
+  <div class="menu-tools">
+    <input
+      type="search"
+      class="search-box"
+      id="searchInput"
+      placeholder="ابحث عن صنفك المفضل..."
+    >
+  </div>
+
+  <div class="category-list" id="categoryList">
+    <button class="category-btn active" data-category="all">كل الأصناف</button>
+  </div>
+
+  <div class="menu-grid" id="menuGrid">
+    <div class="loading">جاري تحميل المنيو...</div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <h2>أسماك العمدة</h2>
+  <p>
+    البحر في الإسكندرية والعمدة في السعودية.
+    نقدم لكم تجربة مميزة لعشاق الأسماك والمأكولات البحرية،
+    مع تنوع في الأصناف وطرق التحضير لتستمتعوا بمذاق البحر.
+  </p>
+</section>
+
+<section class="section" id="contact">
+  <div class="section-heading">
+    <div class="eyebrow">يسعدنا تواصلكم</div>
     <h2>تواصل معنا</h2>
-    <p>📍 العنوان: مكة - العزيزية الجنوبية - شارع عبدالله الخياط</p>
+  </div>
+  <div class="contact">
+    <p>📍 مكة - العزيزية الجنوبية - شارع عبدالله الخياط</p>
     <p>📞 الهاتف: 0535407080</p>
-    <p>💬 واتساب: <a href="https://wa.me/966535407080" target="_blank">اضغط هنا للدردشة</a></p>
-  </section>
+    <p>💬 واتساب:
+      <a href="https://wa.me/966535407080" target="_blank" rel="noopener">
+        اضغط هنا للتواصل
+      </a>
+    </p>
+  </div>
+</section>
 
-  <footer>
-    <p>© 2025 أسماك العمدة</p>
-  </footer>
+<footer>
+  <p>© 2026 <strong>أسماك العمدة</strong> - جميع الحقوق محفوظة</p>
+  <p>البحر في الإسكندرية والعمدة في السعودية 🌊</p>
+</footer>
+
+<!-- سلة المشتريات -->
+<div class="cart-overlay" id="cartOverlay" onclick="overlayClose(event)">
+  <div class="cart-panel">
+    <div class="cart-header">
+      <h3>🛒 سلة مشترياتك</h3>
+      <button class="close-btn" onclick="closeCart()">×</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="empty-state">السلة فارغة حاليًا</div>
+    </div>
+    <div class="cart-footer">
+      <div class="total-line">
+        <span>الإجمالي</span>
+        <span id="cartTotal">0 ريال</span>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()" disabled>
+        إتمام الطلب
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- نموذج إتمام الطلب -->
+<div class="checkout-modal" id="checkoutModal">
+  <div class="checkout-box">
+    <h2>إتمام طلبك</h2>
+
+    <form id="checkoutForm">
+      <label for="customerName">الاسم بالكامل</label>
+      <input id="customerName" required maxlength="120" placeholder="اكتب اسمك">
+
+      <label for="customerPhone">رقم الجوال</label>
+      <input id="customerPhone" required maxlength="30" type="tel" placeholder="05xxxxxxxx">
+
+      <label for="customerAddress">عنوان التوصيل بالتفصيل</label>
+      <textarea id="customerAddress" required maxlength="500" placeholder="المدينة والحي والشارع ورقم المبنى"></textarea>
+
+      <div class="checkout-actions">
+        <button type="submit" class="checkout-btn" id="sendOrderBtn">
+          تأكيد وإرسال الطلب
+        </button>
+        <button type="button" class="cancel-btn" onclick="closeCheckout()">
+          رجوع
+        </button>
+      </div>
+    </form>
+
+    <div class="success-message" id="successMessage"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* إعدادات مشروع أسماك العمدة */
+const SUPABASE_URL = "https://lyjxaltnznuoxnnpnxmn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_O2P2rY_tvSUzZbBKRdWrpA_uZO4Tfa7";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let menuItems = [];
+let cart = [];
+let activeCategory = "all";
+let sendingOrder = false;
+
+const $ = (id) => document.getElementById(id);
+
+function money(value) {
+  return Number(value).toLocaleString("ar-SA", {
+    maximumFractionDigits: 2
+  }) + " ريال";
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2800);
+}
+
+/* تحميل المنيو من قاعدة البيانات */
+async function loadMenu() {
+  const grid = $("menuGrid");
+  grid.innerHTML = '<div class="loading">جاري تحميل الأصناف...</div>';
+
+  const { data, error } = await db
+    .from("menu_items")
+    .select("*")
+    .order("category", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Menu loading error:", error);
+    grid.innerHTML = `
+      <div class="error-box">
+        تعذر تحميل المنيو حاليًا. يرجى المحاولة مرة أخرى.
+        <br>
+        <button class="add-btn" onclick="loadMenu()" style="margin-top:12px">
+          إعادة المحاولة
+        </button>
+      </div>`;
+    return;
+  }
+
+  menuItems = (data || []).filter(item => item.is_available !== false);
+
+  buildCategories();
+  renderMenu();
+}
+
+function buildCategories() {
+  const categories = [
+    ...new Set(
+      menuItems
+        .map(item => item.category)
+        .filter(Boolean)
+    )
+  ];
+
+  const container = $("categoryList");
+  container.innerHTML = "";
+
+  const allButton = document.createElement("button");
+  allButton.className = "category-btn active";
+  allButton.textContent = "كل الأصناف";
+  allButton.dataset.category = "all";
+  allButton.onclick = () => chooseCategory("all");
+  container.appendChild(allButton);
+
+  categories.forEach(category => {
+    const button = document.createElement("button");
+    button.className = "category-btn";
+    button.textContent = category;
+    button.dataset.category = category;
+    button.onclick = () => chooseCategory(category);
+    container.appendChild(button);
+  });
+}
+
+function chooseCategory(category) {
+  activeCategory = category;
+
+  document.querySelectorAll(".category-btn").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.category === category
+    );
+  });
+
+  renderMenu();
+}
+
+function renderMenu() {
+  const grid = $("menuGrid");
+  const search = $("searchInput").value.trim().toLowerCase();
+
+  const filtered = menuItems.filter(item => {
+    const matchesCategory =
+      activeCategory === "all" ||
+      item.category === activeCategory;
+
+    const matchesSearch =
+      String(item.name || "").toLowerCase().includes(search) ||
+      String(item.category || "").toLowerCase().includes(search);
+
+    return matchesCategory && matchesSearch;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state">لا توجد أصناف مطابقة للبحث.</div>';
+    return;
+  }
+
+  grid.innerHTML = "";
+
+  filtered.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "menu-card";
+
+    const image = document.createElement("img");
+    image.loading = "lazy";
+    image.alt = item.name || "صنف من أسماك العمدة";
+    image.src = item.image_url || "";
+    image.onerror = () => {
+      image.style.display = "none";
+    };
+
+    const content = document.createElement("div");
+    content.className = "menu-card-content";
+
+    const title = document.createElement("h3");
+    title.textContent = item.name || "صنف";
+
+    const category = document.createElement("div");
+    category.className = "category-name";
+    category.textContent = item.category || "";
+
+    const bottom = document.createElement("div");
+    bottom.className = "card-bottom";
+
+    const price = document.createElement("div");
+    price.className = "price";
+
+    if (item.price !== null && item.price !== undefined) {
+      price.textContent = money(item.price);
+    } else if (item.min_price != null && item.max_price != null) {
+      price.textContent =
+        `${money(item.min_price)} - ${money(item.max_price)}`;
+    } else {
+      price.textContent = "السعر عند الطلب";
+    }
+
+    const addButton = document.createElement("button");
+    addButton.className = "add-btn";
+    addButton.textContent = "＋ أضف للسلة";
+    addButton.onclick = () => addToCart(item.id);
+
+    bottom.append(price, addButton);
+    content.append(title, category, bottom);
+    card.append(image, content);
+    grid.appendChild(card);
+  });
+}
+
+/* إضافة صنف للسلة */
+function addToCart(itemId) {
+  const item = menuItems.find(x => String(x.id) === String(itemId));
+  if (!item) return;
+
+  let selectedPrice;
+
+  if (item.price !== null && item.price !== undefined) {
+    selectedPrice = Number(item.price);
+  } else {
+    const min = Number(item.min_price);
+    const max = Number(item.max_price);
+
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) {
+      showToast("هذا الصنف يحتاج مراجعة السعر من المطعم.");
+      return;
+    }
+
+    const answer = prompt(
+      `اختر السعر للصنف ${item.name}\nمن ${min} إلى ${max} ريال`
+    );
+
+    if (answer === null) return;
+
+    selectedPrice = Number(answer);
+
+    if (
+      !Number.isFinite(selectedPrice) ||
+      selectedPrice < min ||
+      selectedPrice > max
+    ) {
+      showToast("السعر المختار خارج النطاق المحدد.");
+      return;
+    }
+  }
+
+  const existing = cart.find(
+    x => String(x.id) === String(item.id) &&
+         x.price === selectedPrice
+  );
+
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      id: item.id,
+      name: item.name,
+      price: selectedPrice,
+      quantity: 1
+    });
+  }
+
+  renderCart();
+  showToast("تمت إضافة الصنف إلى السلة");
+}
+
+function renderCart() {
+  const container = $("cartItems");
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  $("cartCount").textContent = count;
+  $("cartTotal").textContent = money(total);
+  $("checkoutBtn").disabled = cart.length === 0;
+
+  if (!cart.length) {
+    container.innerHTML = '<div class="empty-state">السلة فارغة حاليًا</div>';
+    return;
+  }
+
+  container.innerHTML = "";
+
+  cart.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "cart-row";
+
+    const info = document.createElement("div");
+
+    const name = document.createElement("h4");
+    name.textContent = item.name;
+
+    const price = document.createElement("small");
+    price.textContent = money(item.price) + " للصنف";
+
+    const controls = document.createElement("div");
+    controls.className = "quantity-controls";
+
+    const minus = document.createElement("button");
+    minus.textContent = "−";
+    minus.onclick = () => changeQuantity(index, -1);
+
+    const quantity = document.createElement("span");
+    quantity.textContent = item.quantity;
+
+    const plus = document.createElement("button");
+    plus.textContent = "+";
+    plus.onclick = () => changeQuantity(index, 1);
+
+    controls.append(minus, quantity, plus);
+    info.append(name, price, controls);
+
+    const side = document.createElement("div");
+    side.style.textAlign = "left";
+
+    const subtotal = document.createElement("strong");
+    subtotal.textContent = money(item.price * item.quantity);
+
+    const remove = document.createElement("button");
+    remove.className = "remove-btn";
+    remove.textContent = "حذف";
+    remove.onclick = () => removeItem(index);
+
+    side.append(subtotal, document.createElement("br"), remove);
+    row.append(info, side);
+    container.appendChild(row);
+  });
+}
+
+function changeQuantity(index, amount) {
+  if (!cart[index]) return;
+
+  cart[index].quantity += amount;
+
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+  }
+
+  renderCart();
+}
+
+function removeItem(index) {
+  cart.splice(index, 1);
+  renderCart();
+}
+
+function openCart() {
+  $("cartOverlay").classList.add("show");
+}
+
+function closeCart() {
+  $("cartOverlay").classList.remove("show");
+}
+
+function overlayClose(event) {
+  if (event.target === $("cartOverlay")) closeCart();
+}
+
+function openCheckout() {
+  if (!cart.length) return;
+  closeCart();
+  $("checkoutModal").classList.add("show");
+}
+
+function closeCheckout() {
+  if (sendingOrder) return;
+  $("checkoutModal").classList.remove("show");
+}
+
+/* إرسال الطلب إلى Edge Function */
+$("checkoutForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (sendingOrder || !cart.length) return;
+
+  const customerName = $("customerName").value.trim();
+  const customerPhone = $("customerPhone").value.trim();
+  const customerAddress = $("customerAddress").value.trim();
+
+  if (!customerName || !customerPhone || !customerAddress) {
+    showToast("يرجى استكمال بيانات الطلب.");
+    return;
+  }
+
+  sendingOrder = true;
+  const button = $("sendOrderBtn");
+  button.disabled = true;
+  button.textContent = "جاري إرسال الطلب...";
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/functions/v1/submit-order`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          customer_address: customerAddress,
+          items: cart.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+            price: item.price
+          }))
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "تعذر إرسال الطلب.");
+    }
+
+    const orderNumber = result.order?.id || "";
+
+    $("successMessage").style.display = "block";
+    $("successMessage").textContent =
+      `تم إرسال طلبك بنجاح. رقم الطلب: ${orderNumber}`;
+
+    cart = [];
+    renderCart();
+    $("checkoutForm").reset();
+
+    button.textContent = "تم إرسال الطلب";
+    showToast("وصل طلبك بنجاح إلى أسماك العمدة");
+
+    setTimeout(() => {
+      $("checkoutModal").classList.remove("show");
+      $("successMessage").style.display = "none";
+      button.textContent = "تأكيد وإرسال الطلب";
+      button.disabled = false;
+      sendingOrder = false;
+    }, 3500);
+
+  } catch (error) {
+    console.error("Order error:", error);
+    showToast(error.message || "حدث خطأ أثناء إرسال الطلب.");
+    button.disabled = false;
+    button.textContent = "تأكيد وإرسال الطلب";
+    sendingOrder = false;
+  }
+});
+
+$("searchInput").addEventListener("input", renderMenu);
+
+loadMenu();
+renderCart();
+</script>
 
 </body>
 </html>
