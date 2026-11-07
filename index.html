@@ -953,6 +953,7 @@ grid.appendChild(card);
 }
 
 /* إضافة صنف للسلة مع الوزن */
+/* إضافة صنف للسلة مع دعم الوزن للأسماك فقط */
 function addToCart(itemId, weightKg) {
   const item = menuItems.find(
     x => String(x.id) === String(itemId)
@@ -961,38 +962,56 @@ function addToCart(itemId, weightKg) {
   if (!item) return;
 
   const kiloPrice = Number(item.price);
-  const weight = Number(weightKg);
 
-  if (
-    !Number.isFinite(kiloPrice) ||
-    kiloPrice < 0 ||
-    ![0.5, 1].includes(weight)
-  ) {
-    showToast("تعذر تحديد سعر الصنف أو وزنه.");
+  if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
+    showToast("سعر الصنف غير متاح.");
     return;
   }
 
-  const selectedPrice = Number(
-    (kiloPrice * weight).toFixed(2)
-  );
+  const isFishSection =
+    String(item.category || "").trim() === "قسم الأسماك";
+
+  let selectedPrice;
+  let weight = null;
+
+  if (isFishSection) {
+    weight = Number(weightKg);
+
+    if (![0.5, 1].includes(weight)) {
+      showToast("يرجى اختيار وزن صحيح.");
+      return;
+    }
+
+    selectedPrice = Number(
+      (kiloPrice * weight).toFixed(2)
+    );
+  } else {
+    selectedPrice = kiloPrice;
+  }
 
   const existing = cart.find(
     x =>
       String(x.id) === String(item.id) &&
-      x.weight_kg === weight
+      (x.weight_kg ?? null) === weight
   );
 
   if (existing) {
     existing.quantity++;
   } else {
-    cart.push({
+    const cartItem = {
       id: item.id,
       name: item.name,
       price: selectedPrice,
-      quantity: 1,
-      weight_kg: weight,
-      weight: weight === 0.5 ? "نصف كيلو" : "كيلو"
-    });
+      quantity: 1
+    };
+
+    if (isFishSection) {
+      cartItem.weight_kg = weight;
+      cartItem.weight =
+        weight === 0.5 ? "نصف كيلو" : "كيلو";
+    }
+
+    cart.push(cartItem);
   }
 
   renderCart();
@@ -1023,8 +1042,10 @@ function renderCart() {
 
     const info = document.createElement("div");
 
-    const name = document.createElement("h4");
-name.textContent = item.name + " — " + item.weight;
+  const name = document.createElement("h4");
+name.textContent = item.weight
+  ? item.name + " — " + item.weight
+  : item.name;
 
     const price = document.createElement("small");
     price.textContent = money(item.price) + " للصنف";
