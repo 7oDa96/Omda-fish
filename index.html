@@ -910,6 +910,7 @@ if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
 
   bottom.append(price, addButton);
 
+
 } else if (isFishSection) {
 
   const weightSelect = document.createElement("select");
@@ -919,6 +920,29 @@ if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
     <option value="1">كيلو</option>
     <option value="0.5">نصف كيلو</option>
   `;
+
+  const preparationSelect = document.createElement("select");
+  preparationSelect.className = "weight-select";
+
+  const preparations = Array.isArray(item.preparation_options)
+    ? item.preparation_options.filter(option =>
+        option &&
+        option.is_active === true &&
+        typeof option.name === "string" &&
+        option.name.trim()
+      )
+    : [];
+
+  preparationSelect.innerHTML = `
+    <option value="">اختر التسوية</option>
+  `;
+
+  preparations.forEach(option => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option.name.trim();
+    optionElement.textContent = option.name.trim();
+    preparationSelect.appendChild(optionElement);
+  });
 
   function updateWeightPrice() {
     const weight = Number(weightSelect.value);
@@ -931,10 +955,26 @@ if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
   weightSelect.addEventListener("change", updateWeightPrice);
   updateWeightPrice();
 
-  addButton.onclick = () =>
-    addToCart(item.id, Number(weightSelect.value));
+  addButton.onclick = () => {
+    if (preparations.length > 0 && !preparationSelect.value) {
+      showToast("يرجى اختيار التسوية.");
+      return;
+    }
 
-  bottom.append(weightSelect, price, addButton);
+    addToCart(
+      item.id,
+      Number(weightSelect.value),
+      preparationSelect.value
+    );
+  };
+
+  bottom.append(weightSelect);
+
+  if (preparations.length > 0) {
+    bottom.append(preparationSelect);
+  }
+
+  bottom.append(price, addButton);
 
 } else {
 
@@ -954,7 +994,7 @@ grid.appendChild(card);
 
 /* إضافة صنف للسلة مع الوزن */
 /* إضافة صنف للسلة مع دعم الوزن للأسماك فقط */
-function addToCart(itemId, weightKg) {
+function addToCart(itemId, weightKg, preparation) {
   const item = menuItems.find(
     x => String(x.id) === String(itemId)
   );
@@ -969,10 +1009,11 @@ function addToCart(itemId, weightKg) {
   }
 
   const isFishSection =
-  String(item.category || "").trim() === "الأسماك";
+    String(item.category || "").trim() === "الأسماك";
 
   let selectedPrice;
   let weight = null;
+  let selectedPreparation = "";
 
   if (isFishSection) {
     weight = Number(weightKg);
@@ -982,9 +1023,31 @@ function addToCart(itemId, weightKg) {
       return;
     }
 
+    const preparations = Array.isArray(item.preparation_options)
+      ? item.preparation_options.filter(option =>
+          option &&
+          option.is_active === true &&
+          typeof option.name === "string" &&
+          option.name.trim()
+        )
+      : [];
+
+    selectedPreparation = String(preparation || "").trim();
+
+    if (
+      preparations.length > 0 &&
+      !preparations.some(
+        option => option.name.trim() === selectedPreparation
+      )
+    ) {
+      showToast("يرجى اختيار تسوية متاحة لهذا الصنف.");
+      return;
+    }
+
     selectedPrice = Number(
       (kiloPrice * weight).toFixed(2)
     );
+
   } else {
     selectedPrice = kiloPrice;
   }
@@ -992,7 +1055,8 @@ function addToCart(itemId, weightKg) {
   const existing = cart.find(
     x =>
       String(x.id) === String(item.id) &&
-      (x.weight_kg ?? null) === weight
+      (x.weight_kg ?? null) === weight &&
+      (x.preparation || "") === selectedPreparation
   );
 
   if (existing) {
@@ -1009,6 +1073,10 @@ function addToCart(itemId, weightKg) {
       cartItem.weight_kg = weight;
       cartItem.weight =
         weight === 0.5 ? "نصف كيلو" : "كيلو";
+
+      if (selectedPreparation) {
+        cartItem.preparation = selectedPreparation;
+      }
     }
 
     cart.push(cartItem);
@@ -1042,10 +1110,13 @@ function renderCart() {
 
     const info = document.createElement("div");
 
-  const name = document.createElement("h4");
-name.textContent = item.weight
-  ? item.name + " — " + item.weight
-  : item.name;
+const name = document.createElement("h4");
+
+name.textContent = [
+  item.name,
+  item.weight,
+  item.preparation
+].filter(Boolean).join(" — ");
 
     const price = document.createElement("small");
     price.textContent = money(item.price) + " للصنف";
@@ -1160,7 +1231,8 @@ $("checkoutForm").addEventListener("submit", async (event) => {
           items: cart.map(item => ({
   id: item.id,
   quantity: item.quantity,
-  weight_kg: item.weight_kg
+  weight_kg: item.weight_kg,
+  preparation: item.preparation
 }))
         })
       }
