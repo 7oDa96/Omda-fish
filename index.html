@@ -660,7 +660,17 @@ footer strong { color:var(--gold2); }
       <input id="customerName" required maxlength="120" placeholder="اكتب اسمك">
 
       <label for="customerPhone">رقم الجوال</label>
-      <input id="customerPhone" required maxlength="30" type="tel" placeholder="05xxxxxxxx">
+      <input
+  id="customerPhone"
+  type="tel"
+  required
+  minlength="10"
+  maxlength="10"
+  pattern="05[0-9]{8}"
+  inputmode="numeric"
+  placeholder="05xxxxxxxx"
+  title="رقم الجوال يجب أن يتكون من 10 أرقام ويبدأ بـ 05"
+>
 
       <label for="customerAddress">عنوان التوصيل بالتفصيل</label>
       <textarea id="customerAddress" required maxlength="500" placeholder="المدينة والحي والشارع ورقم المبنى"></textarea>
