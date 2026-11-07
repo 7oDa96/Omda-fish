@@ -844,69 +844,74 @@ function renderMenu() {
     const bottom = document.createElement("div");
     bottom.className = "card-bottom";
 
-    const price = document.createElement("div");
-    price.className = "price";
+   const price = document.createElement("div");
+price.className = "price";
 
-    if (item.price !== null && item.price !== undefined) {
-      price.textContent = money(item.price);
-    } else if (item.min_price != null && item.max_price != null) {
-      price.textContent =
-        `${money(item.min_price)} - ${money(item.max_price)}`;
-    } else {
-      price.textContent = "السعر عند الطلب";
-    }
+const weightSelect = document.createElement("select");
+weightSelect.className = "weight-select";
 
-    const addButton = document.createElement("button");
-    addButton.className = "add-btn";
-    addButton.textContent = "＋ أضف للسلة";
-    addButton.onclick = () => addToCart(item.id);
+weightSelect.innerHTML = `
+  <option value="0.5">نصف كيلو</option>
+  <option value="1">كيلو</option>
+`;
 
-    bottom.append(price, addButton);
-    content.append(title, category, bottom);
-    card.append(image, content);
-    grid.appendChild(card);
-  });
-}
+const kiloPrice = Number(item.price);
 
-/* إضافة صنف للسلة */
-function addToCart(itemId) {
-  const item = menuItems.find(x => String(x.id) === String(itemId));
-  if (!item) return;
+if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
+  price.textContent = "السعر غير متاح";
+} else {
+  function updateWeightPrice() {
+    const weight = Number(weightSelect.value);
+    const selectedPrice = kiloPrice * weight;
 
-  let selectedPrice;
-
-  if (item.price !== null && item.price !== undefined) {
-    selectedPrice = Number(item.price);
-  } else {
-    const min = Number(item.min_price);
-    const max = Number(item.max_price);
-
-    if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) {
-      showToast("هذا الصنف يحتاج مراجعة السعر من المطعم.");
-      return;
-    }
-
-    const answer = prompt(
-      `اختر السعر للصنف ${item.name}\nمن ${min} إلى ${max} ريال`
-    );
-
-    if (answer === null) return;
-
-    selectedPrice = Number(answer);
-
-    if (
-      !Number.isFinite(selectedPrice) ||
-      selectedPrice < min ||
-      selectedPrice > max
-    ) {
-      showToast("السعر المختار خارج النطاق المحدد.");
-      return;
-    }
+    price.textContent =
+      money(selectedPrice) +
+      (weight === 0.5 ? " — نصف كيلو" : " — كيلو");
   }
 
+  weightSelect.addEventListener("change", updateWeightPrice);
+  updateWeightPrice();
+}
+
+const addButton = document.createElement("button");
+addButton.className = "add-btn";
+addButton.textContent = "＋ أضف للسلة";
+
+addButton.disabled = !Number.isFinite(kiloPrice) || kiloPrice < 0;
+
+addButton.onclick = () =>
+  addToCart(item.id, Number(weightSelect.value));
+
+bottom.append(weightSelect, price, addButton);
+
+/* إضافة صنف للسلة مع الوزن */
+function addToCart(itemId, weightKg) {
+  const item = menuItems.find(
+    x => String(x.id) === String(itemId)
+  );
+
+  if (!item) return;
+
+  const kiloPrice = Number(item.price);
+  const weight = Number(weightKg);
+
+  if (
+    !Number.isFinite(kiloPrice) ||
+    kiloPrice < 0 ||
+    ![0.5, 1].includes(weight)
+  ) {
+    showToast("تعذر تحديد سعر الصنف أو وزنه.");
+    return;
+  }
+
+  const selectedPrice = Number(
+    (kiloPrice * weight).toFixed(2)
+  );
+
   const existing = cart.find(
-    x => String(x.id) === String(item.id) &&
-         x.price === selectedPrice
+    x =>
+      String(x.id) === String(item.id) &&
+      x.weight_kg === weight
   );
 
   if (existing) {
@@ -916,14 +921,15 @@ function addToCart(itemId) {
       id: item.id,
       name: item.name,
       price: selectedPrice,
-      quantity: 1
+      quantity: 1,
+      weight_kg: weight,
+      weight: weight === 0.5 ? "نصف كيلو" : "كيلو"
     });
   }
 
   renderCart();
   showToast("تمت إضافة الصنف إلى السلة");
 }
-
 function renderCart() {
   const container = $("cartItems");
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -950,7 +956,7 @@ function renderCart() {
     const info = document.createElement("div");
 
     const name = document.createElement("h4");
-    name.textContent = item.name;
+name.textContent = item.name + " — " + item.weight;
 
     const price = document.createElement("small");
     price.textContent = money(item.price) + " للصنف";
@@ -1063,10 +1069,10 @@ $("checkoutForm").addEventListener("submit", async (event) => {
           customer_phone: customerPhone,
           customer_address: customerAddress,
           items: cart.map(item => ({
-            id: item.id,
-            quantity: item.quantity,
-            price: item.price
-          }))
+  id: item.id,
+  quantity: item.quantity,
+  weight_kg: item.weight_kg
+}))
         })
       }
     );
