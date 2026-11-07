@@ -891,45 +891,60 @@ function renderMenu() {
     const bottom = document.createElement("div");
     bottom.className = "card-bottom";
 
-   const price = document.createElement("div");
+  
+const price = document.createElement("div");
 price.className = "price";
 
-const weightSelect = document.createElement("select");
-weightSelect.className = "weight-select";
-
-weightSelect.innerHTML = `
-  <option value="0.5">نصف كيلو</option>
-  <option value="1">كيلو</option>
-`;
-
 const kiloPrice = Number(item.price);
-
-if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
-  price.textContent = "السعر غير متاح";
-} else {
-  function updateWeightPrice() {
-    const weight = Number(weightSelect.value);
-    const selectedPrice = kiloPrice * weight;
-
-    price.textContent =
-      money(selectedPrice) +
-      (weight === 0.5 ? " — نصف كيلو" : " — كيلو");
-  }
-
-  weightSelect.addEventListener("change", updateWeightPrice);
-  updateWeightPrice();
-}
 
 const addButton = document.createElement("button");
 addButton.className = "add-btn";
 addButton.textContent = "＋ أضف للسلة";
 
-addButton.disabled = !Number.isFinite(kiloPrice) || kiloPrice < 0;
+const isFishSection =
+  String(item.category || "").trim() === "قسم الأسماك";
 
-addButton.onclick = () =>
-  addToCart(item.id, Number(weightSelect.value));
+if (!Number.isFinite(kiloPrice) || kiloPrice < 0) {
+  price.textContent = "السعر غير متاح";
+  addButton.disabled = true;
 
-bottom.append(weightSelect, price, addButton);
+  bottom.append(price, addButton);
+
+} else if (isFishSection) {
+
+  const weightSelect = document.createElement("select");
+  weightSelect.className = "weight-select";
+
+  weightSelect.innerHTML = `
+    <option value="1">كيلو</option>
+    <option value="0.5">نصف كيلو</option>
+  `;
+
+  function updateWeightPrice() {
+    const weight = Number(weightSelect.value);
+
+    price.textContent = weight === 1
+      ? "سعر الكيلو: " + money(kiloPrice)
+      : "سعر نصف الكيلو: " + money(kiloPrice * 0.5);
+  }
+
+  weightSelect.addEventListener("change", updateWeightPrice);
+  updateWeightPrice();
+
+  addButton.onclick = () =>
+    addToCart(item.id, Number(weightSelect.value));
+
+  bottom.append(weightSelect, price, addButton);
+
+} else {
+
+  price.textContent = money(kiloPrice);
+
+  addButton.onclick = () => addToCart(item.id);
+
+  bottom.append(price, addButton);
+}
+
 
 content.append(title, category, bottom);
 card.append(image, content);
