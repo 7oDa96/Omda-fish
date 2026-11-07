@@ -884,6 +884,12 @@ addButton.onclick = () =>
 
 bottom.append(weightSelect, price, addButton);
 
+content.append(title, category, bottom);
+card.append(image, content);
+grid.appendChild(card);
+});
+}
+
 /* إضافة صنف للسلة مع الوزن */
 function addToCart(itemId, weightKg) {
   const item = menuItems.find(
