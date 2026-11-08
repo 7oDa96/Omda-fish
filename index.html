@@ -1244,7 +1244,7 @@ $("checkoutForm").addEventListener("submit", async (event) => {
       throw new Error(result.error || "تعذر إرسال الطلب.");
     }
 
-    const orderNumber = result.order?.id || "";
+    const orderNumber = result.order?.daily_order_number ?? "";
 
     $("successMessage").style.display = "block";
     $("successMessage").textContent =
